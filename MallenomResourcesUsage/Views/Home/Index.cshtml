@@ -1,0 +1,90 @@
+﻿@model MallenomResourcesUsage.Models.Resources
+
+@*Загрузка ЦП*@
+@if (Convert.ToDouble(Model.CPULoading) <= 30)
+{
+<h3>CPU Loading:<span class="badge badge-secondary"></span></h3>
+<div class="progress">
+    <div class="progress-bar bg-success progress-bar-striped progress-bar-animated" role="progressbar" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100" style="@Model.CPULoadingOnBar"></div>
+    <a>@(Model.CPULoading)%</a>
+</div> 
+}
+@if (Convert.ToDouble(Model.CPULoading) > 30 &  Convert.ToDouble(Model.CPULoading) < 60)
+{
+<h3>CPU Loading:<span class="badge badge-secondary"></span></h3>
+<div class="progress">
+    <div class="progress-bar bg-warning progress-bar-striped progress-bar-animated" role="progressbar" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100" style="@Model.CPULoadingOnBar"></div>
+    <a>@(Model.CPULoading)%</a>
+</div> 
+}
+@if (Convert.ToDouble(Model.CPULoading) > 60 &  Convert.ToDouble(Model.CPULoading) <= 100)
+{
+<h3>CPU Loading:<span class="badge badge-secondary"></span></h3>
+<div class="progress">
+    <div class="progress-bar bg-warning progress-bar-striped progress-bar-animated" role="progressbar" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100" style="@Model.CPULoadingOnBar"></div>
+    <a>@(Model.CPULoading)%</a>
+</div> 
+}
+<p></p>
+@*Использование памяти*@
+@if ((Model.UsedRAM / @Model.TotalRAM * 100) <= 30)
+{
+    <h3>Memory usage:<span class="badge badge-secondary"></span></h3>
+    <div class="progress">
+        <div class="progress-bar bg-success progress-bar-striped progress-bar-animated" role="progressbar" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100" style="@Model.UsedRAMOnBar"></div>
+        <a>@Model.UsedRAM / @Model.TotalRAM</a>
+    </div>
+}
+@if ((Model.UsedRAM / @Model.TotalRAM * 100) >30 & (Model.UsedRAM / @Model.TotalRAM * 100) <= 60 )
+{
+    <h3>Memory usage:<span class="badge badge-secondary"></span></h3>
+    <div class="progress">
+        <div class="progress-bar bg-warning progress-bar-striped progress-bar-animated" role="progressbar" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100" style="@Model.UsedRAMOnBar"></div>
+        <a>@Model.UsedRAM / @Model.TotalRAM</a>
+    </div>
+}
+@if ((Model.UsedRAM / @Model.TotalRAM * 100) >60 & (Model.UsedRAM / @Model.TotalRAM * 100) <= 100 )
+{
+    <h3>Memory usage:<span class="badge badge-secondary"></span></h3>
+    <div class="progress">
+        <div class="progress-bar bg-danger progress-bar-striped progress-bar-animated" role="progressbar" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100" style="@Model.UsedRAMOnBar"></div>
+        <a>@Model.UsedRAM / @Model.TotalRAM</a>
+    </div>
+}
+
+<p></p>
+<h3>Used space in disks:<span class="badge badge-secondary"></span></h3>
+@foreach (var obj in Model.Drives)
+{   
+    if(Convert.ToInt32((Convert.ToDouble(@obj.UsedSize)/Convert.ToDouble(@obj.FullSize))*100)<=30)
+    {    
+    <a>@obj.Name</a>
+    <a>@(obj.UsedSize) Gb/@(obj.FullSize) Gb</a>
+    <div class="progress">
+      <div class="progress-bar bg-success" role="progressbar" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100" style="@obj.UsedSizeOnBar"></div>
+    </div>        
+    }
+    if(Convert.ToInt32((Convert.ToDouble(@obj.UsedSize)/Convert.ToDouble(@obj.FullSize))*100)>30 & Convert.ToInt32((Convert.ToDouble(@obj.UsedSize)/Convert.ToDouble(@obj.FullSize))*100)<=60)
+    {    
+    <a>@obj.Name</a>
+    <a>@(obj.UsedSize) Gb/@(obj.FullSize) Gb</a>
+    <div class="progress">
+      <div class="progress-bar bg-warning" role="progressbar" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100" style="@obj.UsedSizeOnBar"></div>
+    </div>        
+    }
+    if(Convert.ToInt32((Convert.ToDouble(@obj.UsedSize)/Convert.ToDouble(@obj.FullSize))*100)>60 & Convert.ToInt32((Convert.ToDouble(@obj.UsedSize)/Convert.ToDouble(@obj.FullSize))*100)<=100)
+    {    
+    <a>@obj.Name</a>
+    <a>@(obj.UsedSize) Gb/@(obj.FullSize) Gb</a>
+    <div class="progress">
+      <div class="progress-bar bg-danger" role="progressbar" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100" style="@obj.UsedSizeOnBar"></div>
+    </div>        
+    }
+}
+
+@section Scripts
+{
+    <script>
+    </script>
+}
+
