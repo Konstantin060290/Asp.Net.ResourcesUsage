@@ -20,10 +20,12 @@ namespace MallenomResourcesUsage.Controllers
 
         public IActionResult Index()
         {
+            Resources res = new Resources();
+
             if (IsUnix() == true)
             {
-                Resources res = new Resources();
                 GetCPUunixMetrics(res);
+                GetUnixDiskMetrics(res);
                 res.TotalRAM = GetUnixMemoryMetrics().Total;
                 res.FreeRAM = GetUnixMemoryMetrics().Free;
                 res.UsedRAM = GetUnixMemoryMetrics().Used;
@@ -31,7 +33,6 @@ namespace MallenomResourcesUsage.Controllers
             }
             else
             {
-                Resources res = new Resources();
                 GetCPUwindowsMetrics(res);
                 GetWindowsDisksMetrics(res);
                 res.TotalRAM = GetWindowsMemoryMetrics().Total;
@@ -106,6 +107,26 @@ namespace MallenomResourcesUsage.Controllers
                 r.Drives.Add(new Drive(name, freespace, fullsize, usedsize, usedsizeonbar));
             }
         }
+
+        public void GetUnixDiskMetrics(Resources r)
+        {
+            string output = Bash("df");
+            string[] outputarr = output.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+            for (int i=0; i<outputarr.Length; i++)
+            {
+                if (outputarr[i] == "sda")
+                    {
+                    string name = (Convert.ToDouble(outputarr[i])/Math.Pow(10,9)).ToString();
+                    string freespace = (Convert.ToDouble(outputarr[i + 3])/Math.Pow(10, 9)).ToString();
+                    string fullsize = (Convert.ToDouble(outputarr[i + 1])/Math.Pow(10, 9)).ToString();
+                    string usedsize = (Convert.ToDouble(outputarr[i + 2])/Math.Pow(10, 9)).ToString();
+                    string usedsizeonbar = "width: " + Convert.ToInt32((Convert.ToDouble(fullsize) - Convert.ToDouble(freespace)) / Convert.ToDouble(fullsize) * 100).ToString() + "%";
+                    r.Drives.Add(new Drive(name, freespace, fullsize, usedsize, usedsizeonbar));
+                }
+            }
+
+        }
+
         #endregion
 
         #region Memory

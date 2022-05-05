@@ -2,7 +2,11 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
-
+builder.WebHost.UseKestrel(serverOptions =>
+{
+    serverOptions.ListenAnyIP(4000);
+    serverOptions.ListenAnyIP(4001, listenOptions => listenOptions.UseHttps());
+});
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
