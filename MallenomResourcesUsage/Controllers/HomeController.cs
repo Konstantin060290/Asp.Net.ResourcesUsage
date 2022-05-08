@@ -24,7 +24,7 @@ namespace MallenomResourcesUsage.Controllers
 
             if (IsUnix() == true)
             {
-                GetCPUunixMetrics(res);
+                /*GetCPUunixMetrics(res);*/
                 GetUnixDiskMetrics(res);
                 res.TotalRAM = GetUnixMemoryMetrics().Total;
                 res.FreeRAM = GetUnixMemoryMetrics().Free;
@@ -59,7 +59,7 @@ namespace MallenomResourcesUsage.Controllers
             {
                 StartInfo = new ProcessStartInfo
                 {
-                    FileName = "/bin/bush",
+                    FileName = "/bin/bash",
                     Arguments = $"-c \"{escapedArgs}\"",
                     RedirectStandardOutput = true,
                     UseShellExecute = false,
@@ -75,7 +75,8 @@ namespace MallenomResourcesUsage.Controllers
         public void GetCPUunixMetrics(Resources res)
         {
             var output = Bash("cat /proc/loadavg");
-            string cpuload = (Convert.ToDouble(output[0].ToString()+output[1]+output[2]+output[3])*100).ToString();
+            var cpuloadarr = output.Split(",");
+            /**/string cpuload = (Convert.ToDouble(cpuloadarr[0].ToString()+cpuloadarr[1]+cpuloadarr[2]+cpuloadarr[3])*100).ToString();
             res.CPULoading = cpuload;
         }
 

@@ -4,8 +4,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllersWithViews();
 builder.WebHost.UseKestrel(serverOptions =>
 {
-    serverOptions.ListenAnyIP(4000);
-    serverOptions.ListenAnyIP(4001, listenOptions => listenOptions.UseHttps());
+    serverOptions.ListenAnyIP(7230, listenOptions => listenOptions.UseHttps());
 });
 var app = builder.Build();
 
