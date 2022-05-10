@@ -24,7 +24,7 @@ namespace MallenomResourcesUsage.Controllers
 
             if (IsUnix() == true)
             {
-                /*GetCPUunixMetrics(res);*/
+                GetCPUunixMetrics(res);
                 GetUnixDiskMetrics(res);
                 res.TotalRAM = GetUnixMemoryMetrics().Total;
                 res.FreeRAM = GetUnixMemoryMetrics().Free;
@@ -51,36 +51,14 @@ namespace MallenomResourcesUsage.Controllers
                 res.CPULoading = obj["LoadPercentage"].ToString();
             }
         }
-        // Bash execution functionality
-        public string Bash(string cmd)
-        {
-            var escapedArgs = cmd.Replace("\"", "\\\"");
-            var process = new Process()
-            {
-                StartInfo = new ProcessStartInfo
-                {
-                    FileName = "/bin/bash",
-                    Arguments = $"-c \"{escapedArgs}\"",
-                    RedirectStandardOutput = true,
-                    UseShellExecute = false,
-                    CreateNoWindow = true,
-                }
-            };
-            process.Start();
-            string result = process.StandardOutput.ReadToEnd();
-            process.WaitForExit();
-            return result;
-        }
-
+        
         public void GetCPUunixMetrics(Resources res)
         {
-            var output = Bash("cat /proc/loadavg");
-            var cpuloadarr = output.Split(",");
-            /**/string cpuload = (Convert.ToDouble(cpuloadarr[0].ToString()+cpuloadarr[1]+cpuloadarr[2]+cpuloadarr[3])*100).ToString();
-            res.CPULoading = cpuload;
+            var output = BashCommands.GetCpuMetrics();
+            var cpuloadarr = output.Split(" ");
+            cpuloadarr[0] = cpuloadarr[0].Substring(2);
+            res.CPULoading = cpuloadarr[0];
         }
-
-
         #endregion
 
         #region Disks
@@ -104,28 +82,29 @@ namespace MallenomResourcesUsage.Controllers
                 string freespace = (Convert.ToInt64(mo["FreeSpace"]) / 1000000000).ToString();
                 string fullsize = (Convert.ToInt64(mo["Size"]) / 1000000000).ToString();
                 string usedsize = (Convert.ToDouble(fullsize) - Convert.ToDouble(freespace)).ToString();
-                string usedsizeonbar = "width: " + Convert.ToInt32((Convert.ToDouble(fullsize)-Convert.ToDouble(freespace) )/ Convert.ToDouble(fullsize) * 100).ToString() + "%";
+                string usedsizeonbar = "width: " + Convert.ToInt64((Convert.ToDouble(fullsize)-Convert.ToDouble(freespace) )/ Convert.ToDouble(fullsize) * 100).ToString() + "%";
                 r.Drives.Add(new Drive(name, freespace, fullsize, usedsize, usedsizeonbar));
             }
         }
 
         public void GetUnixDiskMetrics(Resources r)
         {
-            string output = Bash("df");
-            string[] outputarr = output.Split(' ', StringSplitOptions.RemoveEmptyEntries);
-            for (int i=0; i<outputarr.Length; i++)
+            string dfresult = BashCommands.GetDiskSpace();
+            string [] dfresultar = dfresult.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+            for (int i=0; i<dfresultar.Length; i++)
             {
-                if (outputarr[i] == "sda")
-                    {
-                    string name = (Convert.ToDouble(outputarr[i])/Math.Pow(10,9)).ToString();
-                    string freespace = (Convert.ToDouble(outputarr[i + 3])/Math.Pow(10, 9)).ToString();
-                    string fullsize = (Convert.ToDouble(outputarr[i + 1])/Math.Pow(10, 9)).ToString();
-                    string usedsize = (Convert.ToDouble(outputarr[i + 2])/Math.Pow(10, 9)).ToString();
-                    string usedsizeonbar = "width: " + Convert.ToInt32((Convert.ToDouble(fullsize) - Convert.ToDouble(freespace)) / Convert.ToDouble(fullsize) * 100).ToString() + "%";
+                if (dfresultar[i].Contains("sda"))
+                {
+                    string name = dfresultar[i];
+                    /*name = name.Insert(name.Length - 9, "*");*/
+                    name = name.Substring(dfresultar[i].Length - 9);
+                    string freespace = Math.Round(Convert.ToDouble(dfresultar[i + 3])/Math.Pow(10, 6), 2).ToString();
+                    string fullsize = Math.Round(Convert.ToDouble(dfresultar[i + 1])/Math.Pow(10, 6), 2).ToString();
+                    string usedsize = Math.Round(Convert.ToDouble(dfresultar[i + 2])/Math.Pow(10, 6), 2).ToString();
+                    string usedsizeonbar = "width: " + Convert.ToInt64((Convert.ToDouble(fullsize) - Convert.ToDouble(freespace)) / Convert.ToDouble(fullsize) * 100).ToString() + "%";
                     r.Drives.Add(new Drive(name, freespace, fullsize, usedsize, usedsizeonbar));
                 }
             }
-
         }
 
         #endregion

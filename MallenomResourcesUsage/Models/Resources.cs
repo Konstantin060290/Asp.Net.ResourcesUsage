@@ -19,7 +19,6 @@
         {
             get { return "width: " + (Convert.ToInt32((UsedRAM / TotalRAM) * 100)).ToString() + "%"; }
         }
-
     }
     public class Drive
     {
