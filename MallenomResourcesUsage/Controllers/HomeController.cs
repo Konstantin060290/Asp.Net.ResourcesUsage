@@ -17,7 +17,7 @@ namespace MallenomResourcesUsage.Controllers
 
             return isUnix;
         }
-
+        [HttpGet]
         public IActionResult Index()
         {
             Resources res = new Resources();
